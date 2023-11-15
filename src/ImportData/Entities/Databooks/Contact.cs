@@ -52,7 +52,8 @@ namespace ImportData.Entities.Databooks
 
             var middleName = this.Parameters[shift + 2].Trim();
 
-            var person = BusinessLogic.CreateEntity<IPersons>(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
+            var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.LastName == lastName && x.FirstName == firstName && x.MiddleName == middleName, exceptionList, logger);
+            person ??= BusinessLogic.CreateEntity(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
 
             if (person == null)
             {

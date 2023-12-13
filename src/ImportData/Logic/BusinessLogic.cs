@@ -255,7 +255,7 @@ namespace ImportData
 
       try
       {
-                var pathToBodyVersions = pathToBody.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray();
+                var pathToBodyVersions = pathToBody.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray();
 
                 foreach (var pathToBodyVersion in pathToBodyVersions)
                 {

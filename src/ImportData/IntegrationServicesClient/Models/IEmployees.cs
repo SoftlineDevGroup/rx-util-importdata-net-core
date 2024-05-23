@@ -10,5 +10,6 @@
         public bool? NeedNotifyNewAssignments { get; set; }
         public bool? NeedNotifyAssignmentsSummary { get; set; }
         public string PersonnelNumber { get; set; }
+        public string EmploymentType { get; set; }
     }
 }

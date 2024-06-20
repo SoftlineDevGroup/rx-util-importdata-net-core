@@ -214,8 +214,13 @@ namespace ImportData
 
             // 21 Подписал
             variableForParameters = this.Parameters[shift + 20].Trim();
-            var ourSignatory = BusinessLogic.GetEntityWithFilter<IEmployees>(e => e.Name == variableForParameters, exceptionList, logger);
-            logger.Debug($"Подписал {ourSignatory?.Id}");
+            var ourSignatory = new IEmployees();
+            ourSignatory = null;
+            if (!string.IsNullOrWhiteSpace(variableForParameters))
+            {
+                ourSignatory = BusinessLogic.GetEntityWithFilter<IEmployees>(e => e.Name == variableForParameters, exceptionList, logger);
+                logger.Debug($"Подписал {ourSignatory?.Id}");
+            }
 
             // 22 Примечание
             var note = this.Parameters[shift + 21];
@@ -306,7 +311,7 @@ namespace ImportData
 
                         BusinessLogic.ImportBody(createdContract, filePath, logger, true);
                     }
-                }              
+                }
             }
             catch (Exception ex)
             {

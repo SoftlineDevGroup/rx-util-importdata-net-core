@@ -63,7 +63,6 @@ namespace ImportData
             var filter = new ODataExpression(condition);
 
             logger.Info(string.Format("Получение сущности {0}", PrintInfo(typeof(T))));
-
             try
             {
                 var entities = Client.GetEntitiesByFilter<T>(filter, isExpand);
@@ -93,7 +92,7 @@ namespace ImportData
                 if (ex.Message.Contains("(Unauthorized)"))
                     throw new FoundMatchesException("Проверьте коррекность указанной учетной записи.");
 
-                logger.Error($"GetEntityWithFilter > Ошибка при получении сущности {PrintInfo(typeof(T))}");
+                logger.Error($"GetEntityWithFilter > Ошибка при получении сущности {PrintInfo(typeof(T))}, {ex.Message}");
             }
             return null;
         }

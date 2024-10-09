@@ -219,6 +219,7 @@ namespace ImportData
           var rows = sheet.Descendants<Row>();
 
           var maxElements = rows.First().Elements<Cell>().Count();
+          logger.Debug($"maxElements - {maxElements}");
           var rowNum = 0;
           foreach (Row row in rows)
           {
@@ -241,6 +242,8 @@ namespace ImportData
             // Если максимальное значение в наборе данных - пустое значение, значит строка не содержит данных. 
             if (!string.IsNullOrWhiteSpace(rowData.Max()))
               result.Add(rowData.ToList());
+            
+            logger.Debug($"rowData - {rowData.Length}");
           }
         }
       }

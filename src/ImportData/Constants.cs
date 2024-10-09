@@ -40,7 +40,7 @@ namespace ImportData
             public const string CaseFiles = "Номенклатура дел";
             public const string Countries = "Страны";
             public const string Currencies = "Валюты";
-
+            public const string ContractsWithPartners = "Договоры";
 		}
 
         public class Actions
@@ -64,6 +64,7 @@ namespace ImportData
             public const string ImportCaseFiles = "importcasefiles";
             public const string ImportCountries = "importсountries";
             public const string ImportCurrencies = "importcurrencies";
+            public const string ImportContractsWithPartners = "importcontractswithpartners";
 
 			// Инициализация клиента, для тестов.
 			public const string InitForTests = "init";
@@ -88,6 +89,7 @@ namespace ImportData
                 {ImportCaseFiles, ImportCaseFiles},
                 {ImportCountries, ImportCountries},
                 {ImportCurrencies, ImportCurrencies},
+                {ImportContractsWithPartners, ImportContractsWithPartners},
 
                 // Инициализация клиента, для тестов.
                 {InitForTests, InitForTests}

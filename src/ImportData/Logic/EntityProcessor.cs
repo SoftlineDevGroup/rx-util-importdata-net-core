@@ -42,6 +42,7 @@ namespace ImportData
       foreach (var importItem in importData.Skip(1))
       {
         int countItem = importItem.Count();
+        logger.Debug($"countItem - {countItem}");
         foreach (var data in importItem.Take(countItem - 3))
           arrayItems.Add(data);
 

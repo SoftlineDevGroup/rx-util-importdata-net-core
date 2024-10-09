@@ -92,6 +92,9 @@ namespace ImportData
         case "importcurrencies":
 		  EntityProcessor.Process(typeof(Currency), xlsxPath, Constants.SheetNames.Currencies, extraParameters, ignoreDuplicates, logger);
 		  break;
+        case "importcontractswithpartners":
+          EntityProcessor.Process(typeof(ContractWithPartners), xlsxPath, Constants.SheetNames.ContractsWithPartners, extraParameters, ignoreDuplicates, logger);
+          break;
 		default:
           break;
       }

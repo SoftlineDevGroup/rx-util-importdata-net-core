@@ -11,6 +11,8 @@ namespace ImportData.IntegrationServicesClient.Models
         public string AccountDetailssline { get; set; }
         public ICurrencies PaymentCurrencysline { get; set; }
         public ICustomDepartments ERPDepartmentsline { get; set; }
+        
+        public ITatSpirtPromPartnerss Partnersline { get; set; }
     }
 
 

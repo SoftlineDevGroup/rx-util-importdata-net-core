@@ -44,22 +44,7 @@
 
 Порядок установки и использования описан в документе [Утилита импорта 4.0. Инструкция по загрузке данных.pdf](https://github.com/DirectumCompany/rx-util-importdata-net-core/blob/main/doc/%D0%A3%D1%82%D0%B8%D0%BB%D0%B8%D1%82%D0%B0%20%D0%B8%D0%BC%D0%BF%D0%BE%D1%80%D1%82%D0%B0%204.0.%20%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D1%8F%20%D0%BF%D0%BE%20%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B5%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.pdf)
 
-## Порядок кастомизации утилиты (для партнеров)
-
-Для работы требуется установленный Directum RX версии 4.0 и выше.
-
-Установка для ознакомления
-1. Склонировать репозиторий https://github.com/DirectumCompany/rx-util-importdata-net-core.git в папку.
-2. Указать в _ConfigSettings.xml DDS:
-```xml
-<block name="REPOSITORIES">
-  <repository folderName="Base" solutionType="Base" url="" /> 
-  <repository folderName="<Папка из п.1>" solutionType="Work" 
-     url="https://github.com/DirectumCompany/rx-util-importdata-net-core.git" />
-</block>
-```
-
-### Установка для использования на проекте
+## Порядок кастомизации утилиты
 
 Рекомендуемый вариант для проектов внедрения:
 1. В системе контроля версий с поддержкой git создать новый репозиторий.

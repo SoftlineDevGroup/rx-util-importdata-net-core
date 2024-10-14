@@ -9,11 +9,6 @@ namespace ImportData.IntegrationServicesClient.Models
   [EntityName("Электронный документ")]
   public class IElectronicDocuments : IEntity
   {
-    public string Name { get; set; }
-        public override string ToString()
-        {
-            return Name;
-        }
     private DateTimeOffset? created;
     private DateTimeOffset? modified;
     public DateTimeOffset? Created

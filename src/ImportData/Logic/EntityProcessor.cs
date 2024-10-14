@@ -23,8 +23,6 @@ namespace ImportData
       Type wrapperType = genericType.MakeGenericType(typeArgs);
       object processor = Activator.CreateInstance(wrapperType);
       var getEntity = wrapperType.GetMethod("GetEntity");
-      bool supplementEntity = false;
-      var supplementEntityList = new List<string>();
 
       uint row = 2;
       uint rowImported = 1;
@@ -39,6 +37,7 @@ namespace ImportData
       var listResult = new List<List<Structures.ExceptionsStruct>>();
       logger.Info("===================Чтение строк из файла===================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
+
       // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
       foreach (var importItem in importData.Skip(1))
       {
@@ -52,6 +51,9 @@ namespace ImportData
         arrayItems.Clear();
         row++;
       }
+
+      var titles = importData.First();
+      titles = titles.Take(titles.Count() - 3).ToList();
       watch.Stop();
       var elapsedMs = watch.ElapsedMilliseconds;
       logger.Info($"Времени затрачено на чтение строк из файла: {elapsedMs} мс");
@@ -61,18 +63,14 @@ namespace ImportData
 
       foreach (var importItem in listImportItems)
       {
-        supplementEntity = false;
         var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
-
-        if (!supplementEntityList.Contains(importItem[2]))
-          supplementEntityList.Add(importItem[2]);
-
-        if (supplementEntityList.Contains(importItem[0]))
-          supplementEntity = true;
+        entity.NamingParameters = titles.Where(x => x != string.Empty)
+          .Select((k, i) => (k, i))
+          .ToDictionary(x => x.k, x => importItem[x.i]);
 
         if (entity != null)
         {
-          if (importItemCount >= entity.GetPropertiesCount())
+          if (importItemCount >= entity.PropertiesCount)
           {
             if (isBatch && entity.RequestsPerBatch > BatchClient.AvailableRequests)
             {
@@ -81,7 +79,7 @@ namespace ImportData
               watch.Stop();
               elapsedMs = watch.ElapsedMilliseconds;
               logger.Info($"Времени затрачено на выполение запроса: {elapsedMs} мс");
-              
+
               var results = listResult.Skip(batchStart).Where(x => !x.Any(e => e.ErrorType == Constants.ErrorTypes.Error));
               if (exceptionList.Any())
                 foreach (var result in results)
@@ -93,7 +91,7 @@ namespace ImportData
 
             logger.Info($"Обработка сущности {row - 1}");
             watch.Restart();
-            exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles, isBatch: isBatch).ToList();
+            exceptionList = entity.SaveToRX(logger, searchDoubles, isBatch: isBatch).ToList();
             watch.Stop();
             elapsedMs = watch.ElapsedMilliseconds;
             if (exceptionList.Any(x => x.ErrorType == Constants.ErrorTypes.Error))
@@ -116,14 +114,21 @@ namespace ImportData
           else
           {
             var message = string.Format("Количества входных параметров недостаточно. " +
-              "Количество ожидаемых параметров {0}. Количество переданных параметров {1}.", entity.GetPropertiesCount(), importItemCount);
+              "Количество ожидаемых параметров {0}. Количество переданных параметров {1}.", entity.PropertiesCount, importItemCount);
             exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
             logger.Error(message);
           }
           listResult.Add(exceptionList);
         }
         if (paramCount == 0)
-          paramCount = entity.GetPropertiesCount();
+        {
+          //HACK: при загрузке оргструктуры сначала грузятся персоны со страницы сотрудников,
+          //количество столбцов различается для персон и сотрудников, поэтому затираются данные, добавим недостоющие столбцы.
+          if (entity.GetType().Equals(typeof(Person)) && sheetName.Equals(Constants.SheetNames.Employees))
+            paramCount = entity.PropertiesCount + 3;
+          else
+            paramCount = entity.PropertiesCount;
+        }
       }
       if (isBatch && BatchClient.AvailableRequests < BatchClient.MaxRequests)
       {
@@ -132,7 +137,7 @@ namespace ImportData
         watch.Stop();
         elapsedMs = watch.ElapsedMilliseconds;
         logger.Info($"Времени затрачено на выполение запроса: {elapsedMs} мс");
-        
+
         var results = listResult.Skip(batchStart).Where(x => !x.Any(e => e.ErrorType == Constants.ErrorTypes.Error));
         if (exceptionList.Any())
           foreach (var result in listResult.Skip(batchStart).Where(x => !x.Any(e => e.ErrorType == Constants.ErrorTypes.Error)))

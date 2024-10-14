@@ -7,7 +7,6 @@ using NLog;
 using ImportData.Entities.Databooks;
 using ImportData.IntegrationServicesClient.Exceptions;
 using ImportData.IntegrationServicesClient.Models;
-using Simple.OData.Client;
 
 namespace ImportData
 {
@@ -29,6 +28,9 @@ namespace ImportData
       switch (action)
       {
         case "importcompany":
+          logger.Info("Импорт персон");
+          logger.Info("-------------");
+          EntityProcessor.Process(typeof(Person), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, isBatch, logger);
           logger.Info("Импорт сотрудников");
           logger.Info("-------------");
           EntityProcessor.Process(typeof(Employee), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, isBatch, logger);
@@ -87,20 +89,35 @@ namespace ImportData
         case "importcasefiles":
           EntityProcessor.Process(typeof(CaseFile), xlsxPath, Constants.SheetNames.CaseFiles, extraParameters, ignoreDuplicates, isBatch, logger);
           break;
-		case "importсountries":
-		  EntityProcessor.Process(typeof(Country), xlsxPath, Constants.SheetNames.Countries, extraParameters, ignoreDuplicates, isBatch, logger);
-		  break;
+        case "importсountries":
+          EntityProcessor.Process(typeof(Country), xlsxPath, Constants.SheetNames.Countries, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
         case "importcurrencies":
-		  EntityProcessor.Process(typeof(Currency), xlsxPath, Constants.SheetNames.Currencies, extraParameters, ignoreDuplicates, isBatch, logger);
-		  break;
-		default:
+          EntityProcessor.Process(typeof(Currency), xlsxPath, Constants.SheetNames.Currencies, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
+        case "importassociatedapplications":
+          EntityProcessor.Process(typeof(AssociatedApplication), xlsxPath, Constants.SheetNames.AssociatedApplications, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
+        case "importcontractcategories":
+          EntityProcessor.Process(typeof(ContractCategory), xlsxPath, Constants.SheetNames.ContractCategories, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
+        case "importdocumentregisters":
+          EntityProcessor.Process(typeof(DocumentRegister), xlsxPath, Constants.SheetNames.DocumentRegisters, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
+        case "importdocumentkinds":
+          EntityProcessor.Process(typeof(DocumentKind), xlsxPath, Constants.SheetNames.DocumentKinds, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
+        case "importroles":
+          EntityProcessor.Process(typeof(Role), xlsxPath, Constants.SheetNames.Roles, extraParameters, ignoreDuplicates, isBatch, logger);
+          break;
+        default:
           break;
       }
     }
 
     public static void Main(string[] args)
     {
-      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importaddendums", "-ub", "true", "-f", $@"Приложения.xlsx" };
+      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcontacts", "-f", $@"D:\Contacts.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -170,10 +187,10 @@ namespace ImportData
         }
         catch (WellKnownKeyNotFoundException ex)
         {
-            string message = string.Format("Не найден параметр {0}. Проверьте соответствующую колонку.", ex.Key);
-            logger.Error(message);
+          string message = string.Format("Не найден параметр {0}. Проверьте соответствующую колонку.", ex.Key);
+          logger.Error(message);
         }
-                catch (Exception ex)
+        catch (Exception ex)
         {
           logger.Error(ex.Message);
         }

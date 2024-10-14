@@ -33,7 +33,7 @@ namespace ImportData.IntegrationServicesClient
       MaxRequests = maxRequestsCount;
     }
 
-    public static T CreateEntity<T>(T entity) where T : IEntity
+    public static T CreateEntity<T>(T entity) where T : IEntityBase
     {
       entity.Id = idCounter--;
       batch += odata => odata.For<T>().Set(entity).InsertEntryAsync();

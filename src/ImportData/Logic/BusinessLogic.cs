@@ -11,7 +11,8 @@ using System.Text.RegularExpressions;
 using ImportData.IntegrationServicesClient.Exceptions;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Logging;
-using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Vml.Office;
+using System.Reflection;
 
 namespace ImportData
 {
@@ -37,6 +38,24 @@ namespace ImportData
       }
 
       return string.Empty;
+    }
+
+    /// <summary>
+    /// Получить значения атрибутов свойства.
+    /// </summary>
+    /// <param name="p">Свойство.</param>
+    /// <returns>Значения атрибутов.</returns>
+    public static PropertyOptions GetPropertyOptions(PropertyInfo p)
+    {
+      Attribute[] attrs = Attribute.GetCustomAttributes(p);
+
+      foreach (Attribute attr in attrs)
+      {
+        if (attr is PropertyOptions)
+          return (PropertyOptions)attr;
+      }
+
+      return null;
     }
 
     /// <summary>
@@ -172,14 +191,14 @@ namespace ImportData
     /// <typeparam name="T">Тип сущности.</typeparam>
     /// <param name="entity">Экземпляр сущности.</param>
     /// <returns>Созданная сущность.</returns>
-    public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isBatch = false) where T : IEntity
+    public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isBatch = false) where T : IEntityBase
     {
-      if (isBatch)
-        return CreateEntityBatch(entity, exceptionList, logger);
-
       logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
       try
       {
+        if (isBatch)
+          return CreateEntityBatch(entity, exceptionList, logger);
+
         var createdEntity = Client.CreateEntity<T>(entity, logger);
 
         if (createdEntity == null)
@@ -209,7 +228,7 @@ namespace ImportData
       return null;
     }
 
-    private static T CreateEntityBatch<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : IEntity
+    private static T CreateEntityBatch<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : IEntityBase
     {
       logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
       var createdEntity = BatchClient.CreateEntity(entity);
@@ -449,8 +468,11 @@ namespace ImportData
         {
             {"Зарегистрирован", "Registered"},
             {"Зарезервирован", "Reserved"},
-            {"Не зарегистрирован", "NotRegistered"},
-            {"", null}
+            {"Не зарегистрирован", "NotRegistered" },
+            {"Registered", "Registered"},
+            {"Reserved", "Reserved"},
+            {"Not registered", "NotRegistered" },
+            {"", "NotRegistered"}
         };
 
       try
@@ -477,7 +499,12 @@ namespace ImportData
             {"Аннулирован", "Obsolete"},
             {"Расторгнут", "Terminated"},
             {"Исполнен", "Closed"},
-            {"", null}
+            {"Draft", "Draft"},
+            {"Active", "Active"},
+            {"Obsolete", "Obsolete"},
+            {"Terminated", "Terminated"},
+            {"Closed", "Closed"},
+            {"", "Active"}
         };
 
       try
@@ -515,6 +542,216 @@ namespace ImportData
         throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
       }
     }
+
+
+    /// <summary>
+    /// Конвертация логического значения из string в bool.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Соответствующее текстовому логическое значение.</returns>
+    public static bool GetBoolProperty(string key)
+    {
+      Dictionary<string, bool> boolProperty = new Dictionary<string, bool>
+        {
+            {"Да", true},
+            {"Нет", false},
+            {"да", true},
+            {"нет", false},
+            {"Yes", true},
+            {"No", false},
+            {"yes", true},
+            {"no", false},
+            {"True", true},
+            {"False", false},
+            {"true", true},
+            {"false", false},
+            {"", false}
+        };
+
+      try
+      {
+        return boolProperty[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
+    /// <summary>
+    /// Получение значения Типа отслеживания закрытия.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Тип отслеживания закрытия.</returns>
+    public static string GetMonitoringType(string key)
+    {
+      Dictionary<string, string> type = new Dictionary<string, string>
+        {
+            {"По процессу и окну", "ByProcAndWnd" },
+            {"По процессу", "Process" },
+            {"Вручную", "Manual"},
+            {"ByProcessAndWindow", "ByProcAndWnd" },
+            {"Process", "Process" },
+            {"Manual", "Manual"},
+            {"", "Manual"}
+        };
+
+      try
+      {
+        return type[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
+    /// <summary>
+    /// Получение значения Типа журнала регистрации.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Тип журнала регистрации.</returns>
+    public static string GetDocumentRegisterType(string key)
+    {
+      Dictionary<string, string> type = new Dictionary<string, string>
+        {
+            {"Нумерация", "Numbering" },
+            {"Регистрация", "Registration" },
+            {"Numbering", "Numbering"},
+            {"Registration", "Registration" },
+            {"", "Numbering"}
+        };
+
+      try
+      {
+        return type[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
+    /// <summary>
+    /// Получение значения Документопотока.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Документопоток.</returns>
+    public static string GetDocumentFlow(string key)
+    {
+      Dictionary<string, string> flow = new Dictionary<string, string>
+        {
+            {"Входящий", "Incoming" },
+            {"Исходящий", "Outgoing" },
+            {"Внутренний", "Inner"},
+            {"Договоры", "Contracts" },
+            {"Incoming", "Incoming" },
+            {"Outgoing", "Outgoing" },
+            {"Inner", "Inner"},
+            {"Contracts", "Contracts" },
+            {"", "Incoming"}
+        };
+
+      try
+      {
+        return flow[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
+    /// <summary>
+    /// Получение значения Разреза нумерации.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Разрез нумерации.</returns>
+    public static string GetNumberingSection(string key)
+    {
+      Dictionary<string, string> section = new Dictionary<string, string>
+        {
+            {"Ведущий документ", "LeadingDocument" },
+            {"Подразделение", "Department" },
+            {"Наша организация", "BusinessUnit"},
+            {"Без разреза", "NoSection" },
+            {"LeadingDocument", "LeadingDocument" },
+            {"Department", "Department" },
+            {"BusinessUnit", "BusinessUnit"},
+            {"NoSection", "NoSection" },
+            {"", "NoSection"}
+        };
+
+      try
+      {
+        return section[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
+    /// <summary>
+    /// Получение значения Периода нумерации.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Период нумерации.</returns>
+    public static string GetNumberingPeriod(string key)
+    {
+      Dictionary<string, string> period = new Dictionary<string, string>
+        {
+            {"Год", "Year" },
+            {"Квартал", "Quarter" },
+            {"Месяц", "Month"},
+            {"День", "Day" },
+            {"Сквозной", "Continuous" },
+            {"Year", "Year" },
+            {"Quarter", "Quarter"},
+            {"Month", "Month" },
+            {"Day", "Day"},
+            {"Continuous", "Continuous" },
+            {"", "Year"}
+        };
+
+      try
+      {
+        return period[key];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
+    /// <summary>
+    /// Получение значения Типа нумерации.
+    /// </summary>
+    /// <param name="key">Значение из шаблона.</param>
+    /// <returns>Тип нумерации.</returns>
+    public static string GetNumberingType(string key)
+    {
+      Dictionary<string, string> type = new Dictionary<string, string>
+        {
+            {"Не нумеруемый", "NotNumerable"},
+            {"Нумеруемый", "Numerable" },
+            {"Регистрируемый", "Registrable"},
+            {"NotNumerable", "NotNumerable"},
+            {"Numerable", "Numerable"},
+            {"Registrable", "Registrable" },
+            {"", "NotNumerable"}
+        };
+
+      try
+      {
+        return type[key.Trim()];
+      }
+      catch (KeyNotFoundException ex)
+      {
+        throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
+      }
+    }
+
     #endregion
 
     #region Проверка валидации.
@@ -662,6 +899,38 @@ namespace ImportData
       nceo = nceo.Trim();
 
       return System.Text.RegularExpressions.Regex.IsMatch(nceo, @"(^\d{8}$)|(^\d{10}$)") ? string.Empty : Constants.Resources.IncorrecNceoLength;
+    }
+
+    /// <summary>
+    /// Добавить ошибку.
+    /// </summary>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <param name="message">Текст сообщения при ошибке.</param>
+    /// <param name="propertyName">Значения для подстановки в текст сообщения об ошибке.</param>
+    /// <returns>Тип ошибки Error/</returns>
+    public static string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    {
+      message = string.Format(message, propertyName);
+      exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+      logger.Error(message);
+      return Constants.ErrorTypes.Error;
+    }
+
+    /// <summary>
+    /// Добавить предупреждение.
+    /// </summary>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <param name="message">Текст предупреждения.</param>
+    /// <param name="propertyName">Значения для подстановки в текст предупреждения.</param>
+    /// <returns>Тип ошибки Warn/</returns>
+    public static string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    {
+      message = string.Format(message, propertyName);
+      exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
+      logger.Error(message);
+      return Constants.ErrorTypes.Warn;
     }
     #endregion
   }

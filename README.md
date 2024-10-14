@@ -61,36 +61,7 @@
 
 ### Установка для использования на проекте
 
-Возможные варианты:
-
-A. Fork репозитория.
-1. Сделать fork репозитория <Название репозитория> для своей учетной записи.
-2. Склонировать созданный в п. 1 репозиторий в папку.
-3. Указать в _ConfigSettings.xml DDS:
-```xml 
-<block name="REPOSITORIES">
-  <repository folderName="Base" solutionType="Base" url="" /> 
-  <repository folderName="<Папка из п.2>" solutionType="Work" 
-     url="https://github.com/DirectumCompany/rx-util-importdata-net-core.git" />
-</block>
-```
-
-B. Подключение на базовый слой.
-Вариант не рекомендуется, так как при выходе версии шаблона разработки не гарантируется обратная совместимость.
-1. Склонировать репозиторий <Название репозитория> в папку.
-2. Указать в _ConfigSettings.xml DDS:
-```xml
-<block name="REPOSITORIES">
-  <repository folderName="Base" solutionType="Base" url="" /> 
-  <repository folderName="<Папка из п.1>" solutionType="Base" 
-     url="https://github.com/DirectumCompany/rx-util-importdata-net-core.git" />
-  <repository folderName="<Папка для рабочего слоя>" solutionType="Work" 
-     url="<Адрес репозитория для рабочего слоя>" />
-</block>
-```
-
-C. Копирование репозитория в систему контроля версий.
-Рекомендуемый вариант для проектов внедрения.
+Рекомендуемый вариант для проектов внедрения:
 1. В системе контроля версий с поддержкой git создать новый репозиторий.
 2. Склонировать репозиторий https://github.com/DirectumCompany/rx-util-importdata-net-core.git в папку с ключом --mirror.
 3. Перейти в папку из п. 2.

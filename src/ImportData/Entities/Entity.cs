@@ -91,9 +91,17 @@ namespace ImportData
           // Работа с полями-сущностями.
           if (options.Type == PropertyType.Entity || options.Type == PropertyType.EntityWithCreate)
           {
-            // Добавляем поля и значения для поиска или создания сущностей.
-            var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
             var entityName = (string)variableForParameters;
+            // баг - при поиске необязательного ссылочного объекта, у которого название для поиска является обязателньым - ошибка становится критичной
+            // hack: если необязательное поле пустое - пропускаем, нет смысла дальше искать
+            if (!options.IsRequired() && string.IsNullOrEmpty(entityName))
+            {
+              ResultValues.Add(property.Name, null);
+              continue;
+            }
+            
+            // Добавляем поля и значения для поиска или создания сущностей.
+            var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);            
 
             if (propertiesForSearch == null)
               propertiesForSearch = new Dictionary<string, string>();

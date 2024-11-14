@@ -58,29 +58,31 @@ namespace ImportData
 
             // 3 Контрагент
             variableForParameters = this.Parameters[shift + 2].Trim();
-            var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == variableForParameters, exceptionList, logger);
+            int.TryParse(variableForParameters, out var counterpartyId);
+            var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Id == counterpartyId, exceptionList, logger);
             if (counterparty == null)
             {
-                var message = string.Format("Не найден контрагент \"{0}\".", variableForParameters);
+                var message = string.Format("Не найден контрагент \"{0}\".", counterpartyId);
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
                 logger.Error(message);
 
                 return exceptionList;
             }
-            logger.Debug($"Контрагент {counterparty?.Id}");
+            logger.Debug($"Контрагент {counterparty?.Id} - {counterparty?.Name}");
             
             // 4 Партнер
             variableForParameters = this.Parameters[shift + 3].Trim();
-            var partner = BusinessLogic.GetEntityWithFilter<ITatSpirtPromPartnerss>(c => c.Name == variableForParameters, exceptionList, logger);
+            int.TryParse(variableForParameters, out var partnerId);
+            var partner = BusinessLogic.GetEntityWithFilter<ITatSpirtPromPartnerss>(c => c.Id == partnerId, exceptionList, logger);
             if (partner == null)
             {
-                var message = string.Format("Не найден Партнер \"{0}\".", variableForParameters);
+                var message = string.Format("Не найден Партнер \"{0}\".", partnerId);
                 exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
                 logger.Error(message);
 
                 return exceptionList;
             }
-            logger.Debug($"Партнер {partner?.Id}");
+            logger.Debug($"Партнер {partner?.Id} - {partner?.Name}");
 
             // 5 Вид документа
             variableForParameters = this.Parameters[shift + 4].Trim();

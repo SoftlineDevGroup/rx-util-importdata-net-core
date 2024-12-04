@@ -326,14 +326,19 @@ namespace ImportData
                     contract.RegistrationNumber = regNumber;
                     if (!string.IsNullOrEmpty(contract.RegistrationNumber) && contract.DocumentRegister != null)
                         contract.RegistrationState = BusinessLogic.GetRegistrationsState(regState);
+                    contract.LifeCycleState = lifeCycleState;
 
                     createdContract = BusinessLogic.CreateEntity(contract, exceptionList, logger);
                     logger.Debug($"Договор {createdContract?.Id}");
                     if (createdContract != null)
                     {
-                        createdContract.UpdateLifeCycleState(lifeCycleState);
-
+                        //createdContract.UpdateLifeCycleState(lifeCycleState);
+                        
+                        logger.Debug($"UpdateLifeCycleState - success");
+                        
                         BusinessLogic.ImportBody(createdContract, filePath, logger, true);
+                        
+                        logger.Debug($"ImportBody - success");
                     }
                 }
             }
